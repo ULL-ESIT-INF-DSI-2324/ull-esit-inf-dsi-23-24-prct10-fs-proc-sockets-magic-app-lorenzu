@@ -27,10 +27,10 @@ export class ColecciondeCartas {
     const filePath = userDirectory + nuevaCarta.id + '.json';
 
     if(fs.existsSync(filePath)){
-      callback(`Error: ya existe una carta con ese ID en la colección de ${usuario}`)
+      callback(chalk.red(`Error: ya existe una carta con ese ID en la colección de ${usuario}`))
     } else {
       fs.writeFileSync(filePath, JSON.stringify(nuevaCarta));
-      callback(undefined, `Carta agregada a la colección de ${usuario}`)
+      callback(undefined, chalk.green(`Carta agregada a la colección de ${usuario}`))
     }
   }
 
@@ -45,9 +45,8 @@ export class ColecciondeCartas {
     if(fs.existsSync(filePath)){
       fs.unlinkSync(filePath);
       callback(undefined, chalk.green(`Carta eliminada de la colección de ${usuario}`))
-      return;
     } else {
-      callback(chalk.red(`La carta no existe en la colección de ${usuario}`))
+      callback(chalk.red(`La carta no existe en la colección de ${usuario}no existe la dir ${filePath}`))
     }
   }
 

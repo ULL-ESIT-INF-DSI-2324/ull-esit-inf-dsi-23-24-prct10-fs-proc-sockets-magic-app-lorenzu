@@ -109,7 +109,7 @@ yargs(hideBin(process.argv))
     lealtad: argv.lealtad,
     valor_mercado: argv.valor
   }
-  const message = JSON.stringify({usuario: argv.usuario, carta: nuevaCarta, key: 'add', end: 'yes'})
+  const message = JSON.stringify({usuario: argv.usuario, carta: nuevaCarta, key: 'add'})
   client.write(message);
  })
  .help()
@@ -132,7 +132,7 @@ yargs(hideBin(process.argv))
   }
  }, (argv) => {
 
-  const message = JSON.stringify({usuario: argv.usuario, cartaid: argv.id, key: 'remove', end: 'yes'})
+  const message = JSON.stringify({usuario: argv.usuario, cartaid: argv.id, key: 'remove'})
   client.write(message);
   
  })
@@ -149,7 +149,7 @@ yargs(hideBin(process.argv))
  }
 }, (argv) => {
 
-  const message = JSON.stringify({usuario: argv.usuario, key: 'list', end: 'yes'})
+  const message = JSON.stringify({usuario: argv.usuario, key: 'list'})
   client.write(message);
  
 })
@@ -171,7 +171,7 @@ id: {
 }
 }, (argv) => {
 
-  const message = JSON.stringify({usuario: argv.usuario, cartaid: argv.id, key: 'read', end: 'yes'})
+  const message = JSON.stringify({usuario: argv.usuario, cartaid: argv.id, key: 'read'})
   client.write(message);
 
 })
@@ -284,7 +284,7 @@ yargs(hideBin(process.argv))
     valor_mercado: argv.valor
   }
 
-  const message = JSON.stringify({usuario: argv.usuario, carta: nuevaCarta, key: 'update', end: 'yes'})
+  const message = JSON.stringify({usuario: argv.usuario, carta: nuevaCarta, key: 'update'})
   client.write(message);
  })
  .help()
@@ -298,13 +298,20 @@ yargs(hideBin(process.argv))
 
  client.on('end', () => {
   const respuesta = JSON.parse(wholeData)
-
-  if(respuesta.type === 'OK'){
-    console.log(respuesta.value)
-  } else if (respuesta.type === 'LIST'){
-    respuesta.value.forEach((carta: string) => {
-      Mostrarporpantalla(carta)
-    });
-
+  switch(respuesta.type){
+    case 'OK':
+      console.log(respuesta.value)
+      break;
+    case 'LIST':
+      respuesta.value.forEach((carta: string) => {
+        Mostrarporpantalla(carta)
+      });
+      break;
+    case 'READ':
+      Mostrarporpantalla(respuesta.value)
+      break;
+    case 'Error':
+      console.log(respuesta.value)
+      break;
   }
  })
