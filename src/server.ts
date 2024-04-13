@@ -1,0 +1,67 @@
+import { ColecciondeCartas } from "./ColecciondeCartas.js";
+import { Carta, Color, Tipo, Rareza } from "./Carta.js";
+import { EventEmitter } from "events";
+import net from 'net';
+import { json } from "stream/consumers";
+
+export class EventEmitterServer extends EventEmitter {
+  constructor(connection: EventEmitter){
+    super();
+    let wholeData = '';
+    connection.on('data', (dataChunk) => {
+      wholeData += dataChunk;
+
+      const message = JSON.parse(wholeData)
+      if(message.key){
+        this.emit('cartason', JSON.parse(wholeData), connection);
+      }
+
+    });
+    
+    connection.on('close', () => {
+      this.emit('close')
+    });
+
+  }
+}
+
+const NuevaColeccion = new ColecciondeCartas();
+
+const server = net.createServer((connection) => {
+  console.log('Cliente conectado');
+
+  const serverSocket = new EventEmitterServer(connection);
+  serverSocket.on('cartason', (message, connection) => {
+    //switch (message.key){
+      
+   // }
+    let carta: Carta | undefined = undefined;
+    if(message.key === 'add'){
+      const nuevaCarta: Carta = {
+        id: message.carta.id,
+        nombre: message.carta.nombre,
+        mana: message.carta.mana,
+        color: message.carta.color as Color,
+        tipo: message.carta.tipo as Tipo,
+        rareza: message.carta.rareza as Rareza,
+        reglas: message.carta.reglas,
+        fuerza: message.carta.fuerza,
+        resistencia: message.carta.resistencia,
+        lealtad: message.carta.lealtad,
+        valor_mercado: message.carta.valor
+      }
+      carta = nuevaCarta;
+    }
+    console.log("Solicitud recibida", message.key);
+    if (carta !== undefined) {
+      NuevaColeccion.agregarcarta(message.usuario, carta);
+    } else {
+      console.error("No se encontró una carta para agregar.");
+    }
+  })
+
+})
+
+server.listen(60300, () => {
+  console.log('esperando magos');
+})
