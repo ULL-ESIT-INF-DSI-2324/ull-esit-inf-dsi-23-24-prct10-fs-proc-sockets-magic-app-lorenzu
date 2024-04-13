@@ -3,6 +3,7 @@ import { Carta, Color, Tipo, Rareza } from "./Carta.js";
 import { EventEmitter } from "events";
 import net from 'net';
 import { json } from "stream/consumers";
+import { error } from "console";
 
 export class EventEmitterServer extends EventEmitter {
   constructor(connection: EventEmitter){
@@ -32,32 +33,84 @@ const server = net.createServer((connection) => {
 
   const serverSocket = new EventEmitterServer(connection);
   serverSocket.on('cartason', (message, connection) => {
-    //switch (message.key){
-      
-   // }
-    let carta: Carta | undefined = undefined;
-    if(message.key === 'add'){
-      const nuevaCarta: Carta = {
-        id: message.carta.id,
-        nombre: message.carta.nombre,
-        mana: message.carta.mana,
-        color: message.carta.color as Color,
-        tipo: message.carta.tipo as Tipo,
-        rareza: message.carta.rareza as Rareza,
-        reglas: message.carta.reglas,
-        fuerza: message.carta.fuerza,
-        resistencia: message.carta.resistencia,
-        lealtad: message.carta.lealtad,
-        valor_mercado: message.carta.valor
+    switch (message.key){
+      case 'add': 
+      let carta_add: Carta | undefined = undefined;
+      if(message.key === 'add'){
+        const nuevaCarta: Carta = {
+          id: message.carta.id,
+          nombre: message.carta.nombre,
+          mana: message.carta.mana,
+          color: message.carta.color as Color,
+          tipo: message.carta.tipo as Tipo,
+          rareza: message.carta.rareza as Rareza,
+          reglas: message.carta.reglas,
+          fuerza: message.carta.fuerza,
+          resistencia: message.carta.resistencia,
+          lealtad: message.carta.lealtad,
+          valor_mercado: message.carta.valor
+        }
+        carta_add = nuevaCarta;
       }
-      carta = nuevaCarta;
-    }
-    console.log("Solicitud recibida", message.key);
-    if (carta !== undefined) {
-      NuevaColeccion.agregarcarta(message.usuario, carta);
-    } else {
-      console.error("No se encontró una carta para agregar.");
-    }
+      console.log("Solicitud recibida", message.key);
+      if (carta_add !== undefined) {
+        NuevaColeccion.agregarcarta(message.usuario, carta_add, (error, result) => {
+          if(error){
+            connection.write(JSON.stringify({type: 'Error', value: 'error'}))
+          } else {
+            connection.write(JSON.stringify({type: 'OK', value: result}))
+          }
+        }) //añadir callbacks
+      } else {
+        console.error("No se encontró una carta para agregar.");
+      }
+      connection.end();
+    break;
+
+    case 'update':
+      let carta_up: Carta | undefined = undefined;
+      if(message.key === 'update'){
+        const nuevaCarta: Carta = {
+          id: message.carta.id,
+          nombre: message.carta.nombre,
+          mana: message.carta.mana,
+          color: message.carta.color as Color,
+          tipo: message.carta.tipo as Tipo,
+          rareza: message.carta.rareza as Rareza,
+          reglas: message.carta.reglas,
+          fuerza: message.carta.fuerza,
+          resistencia: message.carta.resistencia,
+          lealtad: message.carta.lealtad,
+          valor_mercado: message.carta.valor
+        }
+        carta_up = nuevaCarta;
+      }
+      console.log("Solicitud recibida", message.key);
+      if (carta_add !== undefined) {
+        NuevaColeccion.agregarcarta(message.usuario, carta_add, (error, result) => {
+          if(error){
+            connection.write(JSON.stringify({type: 'Error', value: 'error'}))
+          } else {
+            connection.write(JSON.stringify({type: 'OK', value: result}))
+          }
+        }) //añadir callbacks
+      } else {
+        console.error("No se encontró una carta para modificar.");
+      }
+      connection.end();
+      break;
+    
+    case 'list':
+    NuevaColeccion.listarcartas(message.usuario, (error, result) => {
+      if (error){
+        connection.write(JSON.stringify({type: 'Error', value: 'error'}))
+      } else {
+        connection.write(JSON.stringify({type: 'LIST', value: result}))
+      }
+    })
+    connection.end();
+   }
+   
   })
 
 })

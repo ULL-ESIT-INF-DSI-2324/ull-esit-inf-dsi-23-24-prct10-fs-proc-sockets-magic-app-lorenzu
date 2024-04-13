@@ -62,8 +62,7 @@ export interface Carta {
 export function checkUserDirectory(usuario: string): string {
   const userDirectory = `./cartas/${usuario}/`;
   if(!fs.existsSync(userDirectory)){
-    //fs.mkdirSync(userDirectory, {recursive: true});
-    console.log(chalk.red(`No existe el usuario ${usuario}`))
+    fs.mkdirSync(userDirectory, {recursive: true});
   }
   return userDirectory;
 }

@@ -289,3 +289,22 @@ yargs(hideBin(process.argv))
  })
  .help()
  .argv;
+
+ let wholeData = '';
+
+ client.on('data', (dataChunk) => {
+ wholeData += dataChunk;
+});
+
+ client.on('end', () => {
+  const respuesta = JSON.parse(wholeData)
+
+  if(respuesta.type === 'OK'){
+    console.log(respuesta.value)
+  } else if (respuesta.type === 'LIST'){
+    respuesta.value.forEach((carta: string) => {
+      Mostrarporpantalla(carta)
+    });
+
+  }
+ })

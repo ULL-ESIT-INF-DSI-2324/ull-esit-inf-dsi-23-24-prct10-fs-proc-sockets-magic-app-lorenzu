@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import chalk from 'chalk';
 import { Carta, checkUserDirectory, Mostrarporpantalla, Tipo, Color, Rareza } from './Carta.js';
+import { json } from 'stream/consumers';
 
 /**
  * Clase que representa una colección de cartas mágicas.
@@ -21,17 +22,16 @@ export class ColecciondeCartas {
    * @param usuario Nombre del usuario.
    * @param nuevaCarta Carta que se desea agregar.
    */
-  public agregarcarta(usuario: string , nuevaCarta: Carta): void {
+  public agregarcarta(usuario: string , nuevaCarta: Carta, callback :(error: string | undefined, mensaje?: string) => void ): void {
     const userDirectory = checkUserDirectory(usuario);
     const filePath = userDirectory + nuevaCarta.id + '.json';
 
     if(fs.existsSync(filePath)){
-      console.log(chalk.red(`Error: ya existe una carta con ese ID en la colección de ${usuario}`))
-      return;
+      callback(`Error: ya existe una carta con ese ID en la colección de ${usuario}`)
+    } else {
+      fs.writeFileSync(filePath, JSON.stringify(nuevaCarta));
+      callback(undefined, `Carta agregada a la colección de ${usuario}`)
     }
-
-    fs.writeFileSync(filePath, JSON.stringify(nuevaCarta));
-    console.log(chalk.green(`Carta agregada a la colección de ${usuario}`));
   }
 
   /**
@@ -39,15 +39,15 @@ export class ColecciondeCartas {
    * @param usuario Nombre del usuario.
    * @param id ID de la carta que se desea eliminar.
    */
-  public eliminarcarta(usuario: string, id: number): void {
+  public eliminarcarta(usuario: string, id: number, callback :(error: string | undefined, mensaje?: string) => void): void {
     const userDirectory = checkUserDirectory(usuario);
     const filePath = userDirectory + id + '.json';
     if(fs.existsSync(filePath)){
       fs.unlinkSync(filePath);
-      console.log(chalk.green(`Carta eliminada de la colección de ${usuario}`))
+      callback(undefined, chalk.green(`Carta eliminada de la colección de ${usuario}`))
       return;
     } else {
-      console.log(chalk.red(`La carta no existe en la colección de ${usuario}`))
+      callback(chalk.red(`La carta no existe en la colección de ${usuario}`))
     }
   }
 
@@ -56,15 +56,15 @@ export class ColecciondeCartas {
    * @param usuario Nombre del usuario.
    * @param carta Carta modificada que se desea guardar.
    */
-  public modificarcarta(usuario: string, carta: Carta): void {
+  public modificarcarta(usuario: string, carta: Carta, callback :(error: string | undefined, mensaje?: string) => void): void {
     const userDirectory = checkUserDirectory(usuario);
     const filePath = userDirectory + carta.id + '.json';
     if(fs.existsSync(filePath)){
       fs.writeFileSync(filePath, JSON.stringify(carta));
-      console.log(chalk.green(`Carta modificada en la colección de ${usuario}`))
+      callback(undefined, chalk.green(`Carta modificada en la colección de ${usuario}`))
       return;
     } else {
-      console.log(chalk.red(`La carta no existe en la colección de ${usuario}`))
+      callback(chalk.red(`La carta no existe en la colección de ${usuario}`))
     }
   }
 
@@ -73,15 +73,16 @@ export class ColecciondeCartas {
    * @param usuario Nombre del usuario.
    * @param id ID de la carta que se desea mostrar.
    */
-  public mostrarcarta(usuario: string, id: number): void {
+  public mostrarcarta(usuario: string, id: number, callback :(error: string | undefined, mensaje?: string) => void): void {
     const userDirectory = checkUserDirectory(usuario);
     const filePath = userDirectory + id + '.json';
     if(fs.existsSync(filePath)){
       const data = fs.readFileSync(filePath).toString();
-      Mostrarporpantalla(data);
+      //Mostrarporpantalla(data);
+      callback(undefined, data)
       return;
     } else {
-      console.log(chalk.red(`La carta no existe en la colección de ${usuario}`))
+      callback(chalk.red(`La carta no existe en la colección de ${usuario}`))
     }
   }
 
@@ -89,17 +90,22 @@ export class ColecciondeCartas {
    * Método para listar todas las cartas de un usuario por pantalla.
    * @param usuario Nombre del usuario.
    */
-  public listarcartas(usuario: string): void{
+  public listarcartas(usuario: string,  callback :(error: string | undefined, mensaje?: string[]) => void): void {
     const userDirectory = checkUserDirectory(usuario);
+    let cartasListadas : string[] = [];
     if(!fs.existsSync(userDirectory)){
-      console.log(chalk.red(`${usuario} no dispone de cartas`))
+      callback(chalk.red(`${usuario} no dispone de cartas`))
     } else {
       const cartas = fs.readdirSync(userDirectory);
       cartas.forEach((archivo) => {
         let filePath: string  = userDirectory + `${archivo}`;
         const carta = fs.readFileSync(filePath).toString();
-        Mostrarporpantalla(carta);
-      })
+        //Mostrarporpantalla(carta);
+        cartasListadas.push(carta);
+
+      });
+      callback(undefined, cartasListadas)
+
     }
   }
 }
