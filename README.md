@@ -1,3 +1,4 @@
+[![Coverage Status](https://coveralls.io/repos/github/ULL-ESIT-INF-DSI-2324/ull-esit-inf-dsi-23-24-prct10-fs-proc-sockets-magic-app-lorenzu/badge.svg?branch=main)](https://coveralls.io/github/ULL-ESIT-INF-DSI-2324/ull-esit-inf-dsi-23-24-prct10-fs-proc-sockets-magic-app-lorenzu?branch=main)
 ## Introducción
 El desarrollo de aplicaciones cliente-servidor utilizando sockets en TypeScript proporciona una poderosa herramienta para la comunicación entre diferentes dispositivos o programas a través de una red. Los sockets permiten la transferencia de datos en tiempo real de manera eficiente y confiable, lo que los convierte en una opción popular para una amplia gama de aplicaciones, desde juegos en línea y aplicaciones de chat hasta sistemas de intercambio de archivos y servicios de transmisión de video.
 
