@@ -290,12 +290,13 @@ yargs(hideBin(process.argv))
  .help()
  .argv;
 
- let wholeData = '';
 
+ let wholeData = '';
  client.on('data', (dataChunk) => {
  wholeData += dataChunk;
 });
 
+// Cuando se acabe la conexión dependiendo del tipo de respuesta hará una cosa u otra
  client.on('end', () => {
   const respuesta = JSON.parse(wholeData)
   switch(respuesta.type){
